@@ -15,82 +15,85 @@ input {margin:10px; padding:10px; width:80%;}
 
 <h2>💰 Income App Dashboard</h2>
 
-<!DOCTYPE html>
-‎<html>
-‎<head>
-‎<meta name="viewport" content="width=device-width, initial-scale=1">
-‎<title>Account Verify</title>
+‎<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Verify</title>
+<style>
+body{font-family:sans-serif;background:#0f172a;color:#fff;text-align:center;padding:20px;}
+.box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto;}
+input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;}
+button{background:#22c55e;color:#000;font-weight:bold;}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Account Verify — 100 Tk</h2>
+<p>Send money → Upload Screenshot</p>
+<input id="name" placeholder="Your Name">
+<input type="file" id="file">
+<button onclick="sendScreenshot()">Submit Screenshot</button>
+<p id="status"></p>
+</div>
+
+<script>
+const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
+const ADMIN_ID = "7832485327";
+const BOT_USERNAME = "@Easyearnverify_bot";
+
+async function sendScreenshot(){
+
+  const name = document.getElementById("name").value;
+  const file = document.getElementById("file").files[0];
+
+  if(!file){ alert("Upload screenshot"); return; }
+
+  const tg = window.Telegram.WebApp;
+  const userId = tg?.initDataUnsafe?.user?.id || "unknown";
+
+  const formData = new FormData();
+  formData.append("chat_id", ADMIN_ID);
+  formData.append("photo", file);
+  formData.append("caption",
+`💰 New Verify Request
+
+👤 Name: ${name}
+🆔 User ID: ${userId}
+
+Approve or Reject:`);
+
+  formData.append("reply_markup", JSON.stringify({
+    inline_keyboard: [
+      [
+        {text:"✅ Approve", url:`https://t.me/${BOT_USERNAME}?start=approve_${userId}`},
+        {text:"❌ Reject", url:`https://t.me/${BOT_USERNAME}?start=reject_${userId}`}
+      ]
+    ]
+  }));
+
+  try{
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
+      method:"POST",
+      body:formData
+    });
+    if(res.ok){
+      document.getElementById('status').innerText='✅ Submitted — Waiting for approval';
+      alert("Screenshot Submitted Successfully!");
+    }else{
+      alert("❌ Failed to send. Try again.");
+    }
+  }catch(err){
+    console.error(err);
+    alert("❌ Error occurred. Try again.");
+  }
+}
+</script>
+
+</body>
+</html>
 ‎
-‎<style>
-‎body{font-family:sans-serif;background:#0f172a;color:#fff;text-align:center;padding:20px}
-‎.box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto}
-‎input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none}
-‎button{background:#22c55e;color:#000;font-weight:bold}
-‎</style>
-‎</head>
-‎
-‎<body>
-‎
-‎<div class="box">
-‎
-‎<h2>Account Verify — 100 Tk</h2>
-‎
-‎<p>Send money → Upload Screenshot</p>
-‎
-‎<input id="name" placeholder="Your Name">
-‎<input type="file" id="file">
-‎
-‎<button onclick="sendScreenshot()">Submit Screenshot</button>
-‎
-‎</div>
-‎
-‎<script>
-‎const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
-‎const ADMIN_ID = "7832485327";
-‎
-‎async function sendScreenshot(){
-‎
-‎  const name = document.getElementById("name").value;
-‎  const file = document.getElementById("file").files[0];
-‎
-‎  if(!file){ alert("Upload screenshot"); return; }
-‎
-‎  const tg = window.Telegram.WebApp;
-‎  const userId = tg?.initDataUnsafe?.user?.id || "unknown";
-‎
-‎  const formData = new FormData();
-‎
-‎  formData.append("chat_id", ADMIN_ID);
-‎  formData.append("photo", file);
-‎
-‎  formData.append("caption",
-‎`💰 New Verify Request
-‎
-‎👤 Name: ${name}
-‎🆔 User ID: ${userId}
-‎
-‎Approve or Reject:`);
-‎
-‎  formData.append("reply_markup", JSON.stringify({
-‎    inline_keyboard: [
-‎      [
-‎        {text:"✅ Approve", url:`https://t.me/YOUR_BOT_USERNAME?start=approve_${userId}`},
-‎        {text:"❌ Reject", url:`https://t.me/YOUR_BOT_USERNAME?start=reject_${userId}`}
-‎      ]
-‎    ]
-‎  }));
-‎
-‎  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
-‎    method:"POST",
-‎    body:formData
-‎  });
-‎
-‎  alert("Submitted — Waiting for approval");
-‎}
-‎</script>
-‎
-‎</body>
-‎</html>
 
 <!-- Menu -->
 <div id="menu">
