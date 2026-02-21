@@ -14,7 +14,35 @@ input {margin:10px; padding:10px; width:80%;}
 <body>
 
 <h2>💰 Income App Dashboard</h2>
+function enableDashboard(userName, referrals=0, earnings=0){
+  document.getElementById("dashboardBtn").classList.remove("disabled");
+  document.getElementById("account-verify").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
 
+  document.getElementById("userNameDisplay").innerText = userName;
+  document.getElementById("referralLink").value = `https://yourwebsite.com?ref=${telegramUsername}`;
+  document.getElementById("referralsCount").innerText = referrals;
+  document.getElementById("totalEarnings").innerText = earnings + " Tk";
+}
+
+// Copy referral link to clipboard
+function copyReferral(){
+  const link = document.getElementById("referralLink");
+  link.select();
+  link.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(link.value);
+  alert("Referral link copied!");
+}
+
+// Firestore থেকে চেক করা এবং Dashboard enable করা
+db.collection('users').doc(telegramUsername).get().then(doc => {
+  if(doc.exists && doc.data().accountStatus === "approved"){
+    const name = doc.data().name || telegramUsername;
+    const referrals = doc.data().referrals || 0;
+    const earnings = doc.data().earnings || 0;
+    enableDashboard(name, referrals, earnings);
+  }
+});
 ‎<!DOCTYPE html>
 <html>
 <head>
