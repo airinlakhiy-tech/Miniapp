@@ -37,21 +37,28 @@ button{
   border-top:1px solid #555;
   padding-top:20px;
 }
+a{
+  color:#22c55e;
+  text-decoration:none;
+  font-weight:bold;
+}
+a:hover{
+  text-decoration:underline;
+}
 </style>
 </head>
 <body>
 
 <h2>💰 Income App Dashboard</h2>
 
-<!-- ✅ ACCOUNT VERIFY -->
+<!-- ✅ ACCOUNT VERIFY MESSAGE -->
 <div class="box">
 <h2>Account Verify — 100 Tk</h2>
 <p>
-১০০ টাকা পাঠিয়ে নিচের Telegram-এ স্ক্রিনশট জমা দিন  
-👉 Status: <span id="status">Pending</span>
+১০০ টাকা পাঠিয়ে Telegram Bot এ স্ক্রিনশট জমা দিন: <br>
+<a href="https://t.me/Easyearnverify_bot" target="_blank">👉 Click to open Telegram</a>
 </p>
-<input type="file" id="file">
-<button onclick="sendScreenshot()">📩 Submit Screenshot</button>
+<p>Status: <span id="status">Pending</span></p>
 </div>
 
 <!-- ✅ MENU -->
@@ -66,68 +73,17 @@ button{
 </div>
 
 <script>
-// 🔹 Telegram Bot Config
-const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98"; // Bot Token
-const BOT_USERNAME = "@Easyearnverify_bot"; // Bot Username
-const ADMIN_ID = "@TakeItEasyHubcyou"; // Admin Telegram username
-
-// 🔹 Member Username
-let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
-
-// 🔹 Status (Member always sees Pending)
-let accountStatus = "pending";
+// 🔹 Member Status
+let accountStatus = "pending"; 
 document.getElementById("status").innerText = accountStatus;
 
-// 🔹 Submit Screenshot
-async function sendScreenshot(){
-  const file = document.getElementById("file").files[0];
-  if(!file){ alert("Upload screenshot first"); return; }
-
-  const formData = new FormData();
-  formData.append("chat_id", ADMIN_ID);
-  formData.append("photo", file);
-  formData.append("caption",
-`💰 New Verify Request
-
-👤 Name: ${telegramUsername}
-Status: Pending
-
-Approve or Reject:`);
-
-  formData.append("reply_markup", JSON.stringify({
-    inline_keyboard: [
-      [
-        {text:"✅ Approve", url:`https://t.me/${BOT_USERNAME}?start=approve_${telegramUsername}`},
-        {text:"❌ Reject", url:`https://t.me/${BOT_USERNAME}?start=reject_${telegramUsername}`}
-      ]
-    ]
-  }));
-
-  try{
-    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
-      method:"POST",
-      body:formData
-    });
-    if(res.ok){
-      alert("Screenshot Submitted! Waiting for Admin Approval.");
-    } else {
-      alert("Failed to send. Try again.");
-    }
-  }catch(err){
-    console.error(err);
-    alert("Error occurred. Try again.");
-  }
-}
-
-// 🔹 Menu unlock function (simulate only after Admin approval)
+// 🔹 Function to unlock menu (Admin approval simulation)
 function unlockMenu(){
   accountStatus = "approved";
   document.getElementById("status").innerText = accountStatus;
   document.querySelectorAll("#menu button").forEach(btn => btn.classList.remove("disabled"));
 }
-
 </script>
 
 </body>
 </html>
-
