@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Panel — Income App</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial; background:#0f172a; color:white; text-align:center;}
+.box{background:#1e293b;padding:25px;border-radius:12px;max-width:420px;margin:30px auto;}
+button{padding:15px;margin:10px;width:40%;border:none;border-radius:10px;font-size:18px;cursor:pointer;}
+.approve{background:#22c55e;color:white;}
+.reject{background:#ef4444;color:white;}
+</style>
+</head>
+<body>
+
+<h2>🛠 Admin Panel</h2>
+
+<div class="box">
+<h3>Member Status: <span id="memberStatus">Pending</span></h3>
+<button class="approve" onclick="approveMember()">✅ Approve</button>
+<button class="reject" onclick="rejectMember()">❌ Reject</button>
+</div>
+
+<script>
+// 🔹 Status variable
+let memberStatus = "Pending";
+const statusSpan = document.getElementById("memberStatus");
+
+// ✅ Approve function
+function approveMember(){
+    memberStatus = "Approved";
+    statusSpan.innerText = memberStatus;
+    alert("Member Approved ✅");
+
+    // 🔹 Member page update করার জন্য: 
+    // window.open("index.html") অথবা Firebase sync করতে হবে
+}
+
+// ❌ Reject function
+function rejectMember(){
+    memberStatus = "Rejected";
+    statusSpan.innerText = memberStatus;
+    alert("Member Rejected ❌");
+}
+</script>
+
+</body>
+</html>
