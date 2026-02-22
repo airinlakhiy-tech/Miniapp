@@ -1,47 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Panel — Income App</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{font-family:Arial; background:#0f172a; color:white; text-align:center;}
-.box{background:#1e293b;padding:25px;border-radius:12px;max-width:420px;margin:30px auto;}
-button{padding:15px;margin:10px;width:40%;border:none;border-radius:10px;font-size:18px;cursor:pointer;}
-.approve{background:#22c55e;color:white;}
-.reject{background:#ef4444;color:white;}
-</style>
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: Arial; background:#0f172a; color:white; text-align:center;}
+    .box {background:#1e293b;padding:20px;border-radius:12px;max-width:500px;margin:auto; margin-top:20px;}
+    button {padding:10px 20px; margin:5px; border:none; border-radius:8px; font-size:16px;}
+    .approve {background:#22c55e; color:white;}
+    .reject {background:#ef4444; color:white;}
+  </style>
 </head>
 <body>
 
 <h2>🛠 Admin Panel</h2>
 
 <div class="box">
-<h3>Member Status: <span id="memberStatus">Pending</span></h3>
-<button class="approve" onclick="approveMember()">✅ Approve</button>
-<button class="reject" onclick="rejectMember()">❌ Reject</button>
+  <h3>Pending Members</h3>
+  <div id="members"></div>
 </div>
 
 <script>
-// 🔹 Status variable
-let memberStatus = "Pending";
-const statusSpan = document.getElementById("memberStatus");
+const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
+const ADMIN_ID = "@TakeItEasyHubcyou";
+const BOT_USERNAME = "@Easyearnverify_bot";
 
-// ✅ Approve function
-function approveMember(){
-    memberStatus = "Approved";
-    statusSpan.innerText = memberStatus;
-    alert("Member Approved ✅");
+// Admin password
+let password = prompt("Enter Admin Password:");
+if(password !== "SHYKOT@72455"){ alert("Wrong password!"); window.location="index.html"; }
 
-    // 🔹 Member page update করার জন্য: 
-    // window.open("index.html") অথবা Firebase sync করতে হবে
+// Local storage simulation
+if(!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify({}));
+let users = JSON.parse(localStorage.getItem('users'));
+
+// Load pending members
+function loadMembers(){
+  users = JSON.parse(localStorage.getItem('users'));
+  const container = document.getElementById('members');
+  container.innerHTML = "";
+  for(let username in users){
+    if(users[username] === "pending"){
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <p>${username}</p>
+        <button class="approve" onclick="approve('${username}')">✅ Approve</button>
+        <button class="reject" onclick="reject('${username}')">❌ Reject</button>
+        <hr>
+      `;
+      container.appendChild(div);
+    }
+  }
 }
 
-// ❌ Reject function
-function rejectMember(){
-    memberStatus = "Rejected";
-    statusSpan.innerText = memberStatus;
-    alert("Member Rejected ❌");
+// Approve / Reject
+function approve(username){
+  users[username] = "approved";
+  localStorage.setItem('users', JSON.stringify(users));
+  loadMembers();
+  alert(username + " approved!");
 }
+
+function reject(username){
+  users[username] = "rejected";
+  localStorage.setItem('users', JSON.stringify(users));
+  loadMembers();
+  alert(username + " rejected!");
+}
+
+// Add member simulation
+let newUser = prompt("Enter member username to add:");
+if(!users[newUser]){ users[newUser]="pending"; localStorage.setItem('users', JSON.stringify(users)); }
+
+loadMembers();
 </script>
 
 </body>
