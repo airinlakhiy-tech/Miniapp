@@ -3,146 +3,137 @@
 <head>
 <title>Income App Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-body {font-family: Arial; background:#0f172a; color:white; text-align:center;}
-button {padding:15px; margin:10px; width:80%; border:none; border-radius:10px; font-size:18px; background:#22c55e; color:white;}
-input {margin:10px; padding:10px; width:80%;}
-.menu-section {margin-top:30px; border-top:1px solid #555; padding-top:20px;}
-.disabled {opacity:0.5; pointer-events:none;}
-.box{background:#1e293b;padding:20px;border-radius:12px;max-width:400px;margin:auto;}
+body{
+  font-family: Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+}
+
+.box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:12px;
+  max-width:420px;
+  margin:30px auto;
+  position:relative;
+}
+
+button{
+  padding:15px;
+  margin:10px;
+  width:85%;
+  border:none;
+  border-radius:10px;
+  font-size:18px;
+  background:#22c55e;
+  color:white;
+  cursor:pointer;
+}
+
+.reject{ background:#ef4444; }
+
+.disabled{
+  opacity:0.5;
+  pointer-events:none;
+}
+
+.admin{ 
+  display:none; 
+  margin-top:10px;
+}
+
+.menu-section{
+  margin-top:25px;
+  border-top:1px solid #555;
+  padding-top:20px;
+}
 </style>
 </head>
+
 <body>
 
 <h2>💰 Income App Dashboard</h2>
 
-<!-- ACCOUNT VERIFY -->
-<div id="account-verify" class="box">
+<div class="box">
+
 <h2>Account Verify — 100 Tk</h2>
-<p>Send money → Upload Screenshot</p>
 
-<input id="name" placeholder="Your Name">
-<input type="file" id="file">
+<p>
+১০০ টাকা পাঠিয়ে নিচের Telegram-এ স্ক্রিনশট জমা দিন  
+👉 Status: <span id="status">Pending</span>
+</p>
 
-<button onclick="sendScreenshot()">Submit Screenshot</button>
-<p id="status"></p>
+<a href="https://t.me/Easyearnverify_bot" target="_blank">
+<button>📩 Send Screenshot</button>
+</a>
+
+<!-- 🔐 Admin Button -->
+<button onclick="adminLogin()">🔐 Admin Panel</button>
+
+<!-- ADMIN ONLY -->
+<div class="admin" id="adminPanel">
+  <p>Admin Control:</p>
+  <button onclick="approve()">✅ Approved</button>
+  <button class="reject" onclick="reject()">❌ Rejected</button>
 </div>
 
-<!-- MENU -->
-<div id="menu">
-<div class="menu-section">
-<button class="disabled" id="jobsBtn">📋 My Jobs & Proved</button>
-<button class="disabled" id="premiumBtn">💎 Premium Package</button>
-<button class="disabled" id="generationBtn">🌳 Generation</button>
-<button class="disabled" id="walletBtn">💰 My Wallet</button>
-<button class="disabled" id="withdrawBtn">🏧 Withdraw</button>
-<button class="disabled" id="transferBtn">🔁 Transfer Balance</button>
-<button id="supportBtn">📞 Support</button>
-</div>
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- ✅ MENU (Locked by default) -->
+<div id="menu" class="menu-section">
+
+<button class="disabled">📋 My Jobs & Proved</button>
+<button class="disabled">💎 Premium Package</button>
+<button class="disabled">🌳 Generation</button>
+<button class="disabled">💰 My Wallet</button>
+<button class="disabled">🏧 Withdraw</button>
+<button class="disabled">🔁 Transfer Balance</button>
+<button>📞 Support</button>
+
+</div>
 
 <script>
-// 🔹 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyAIgnpl1kL7JsnBsxUD_8QM-OrnHA4JaAA",
-  authDomain: "miniapp-f641f.firebaseapp.com",
-  projectId: "miniapp-f641f",
-  storageBucket: "miniapp-f641f.firebasestorage.app",
-  messagingSenderId: "650123816960",
-  appId: "1:650123816960:web:dec31803b3cb73a0ba68e5"
-};
 
-firebase.initializeApp(firebaseConfig);
-const storage = firebase.storage();
-const db = firebase.firestore();
+// 🔐 Admin Password
+const adminPassword = "SHYKOT@72455"; // তোমার দেওয়া পাসওয়ার্ড
 
-// 🔹 Telegram Admin Details
-const BOT_TOKEN = "8051092032:AAGSVOe8efxnJqnBhsM2wdOclA-qtf45V98";
-const ADMIN_ID = "7832485327";
-const BOT_USERNAME = "Easyearnverify_bot";
-
-// 🔹 Telegram Username
-let telegramUsername = prompt("Enter your Telegram username (e.g., @username)");
-
-// 🔹 Submit Screenshot & Name
-function sendScreenshot() {
-  const name = document.getElementById("name").value;
-  const file = document.getElementById("file").files[0];
-  if(!file || !name){ alert("Fill name & select screenshot"); return; }
-
-  // Upload to Firebase Storage
-  const uploadTask = storage.ref('payments/' + telegramUsername + '_' + file.name).put(file);
-  uploadTask.on('state_changed', snapshot=>{}, error=>{
-    console.error(error); alert("Upload failed");
-  }, ()=>{
-    uploadTask.snapshot.ref.getDownloadURL().then(url=>{
-      // Save in Firestore
-      db.collection('users').doc(telegramUsername).set({
-        name: name,
-        screenshotURL: url,
-        accountStatus: "pending",
-        wallet: 0,  // শুরুতে wallet 0
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(()=>{
-        document.getElementById('status').innerText = '✅ Submitted — Waiting for approval';
-        
-        // Send to Telegram Admin
-        const formData = new FormData();
-        formData.append("chat_id", ADMIN_ID);
-        formData.append("photo", file);
-        formData.append("caption", `💰 New Verify Request\n👤 Name: ${name}\n🆔 Username: ${telegramUsername}\n\nApprove or Reject:`);
-        formData.append("reply_markup", JSON.stringify({
-          inline_keyboard: [
-            [{text:"✅ Approve", url:`https://t.me/${BOT_USERNAME}?start=approve_${telegramUsername}`}],
-            [{text:"❌ Reject", url:`https://t.me/${BOT_USERNAME}?start=reject_${telegramUsername}`}]
-          ]
-        }));
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {method:"POST", body:formData});
-      });
-    });
-  });
-}
-
-// 🔹 Check Account Status & Wallet
-db.collection('users').doc(telegramUsername).get().then(doc=>{
-  if(doc.exists && doc.data().accountStatus === "approved"){
-    enableMenu();
+// Admin Login
+function adminLogin(){
+  let pass = prompt("Enter Admin Password");
+  if(pass === adminPassword){
+    document.getElementById("adminPanel").style.display = "block";
+  }else{
+    alert("Wrong Password");
   }
-});
-
-// 🔹 Enable Menu
-function enableMenu(){
-  document.getElementById("account-verify").style.display = "none";
-  document.querySelectorAll("#menu button").forEach(btn=>btn.classList.remove("disabled"));
 }
 
-// 🔹 Withdraw Example (10 Tk charge + Donation)
-document.getElementById('withdrawBtn').addEventListener('click', ()=>{
-  const amount = parseFloat(prompt("Enter amount to withdraw (Tk)"));
-  if(isNaN(amount) || amount<=0) return alert("Invalid amount");
+// Approved
+function approve(){
+  document.getElementById("status").innerText = "Approved ✅";
+  unlockMenu();
+}
 
-  db.collection('users').doc(telegramUsername).get().then(doc=>{
-    if(doc.exists){
-      let wallet = doc.data().wallet || 0;
-      const charge = 10; // Example charge
-      const donation = 5; // Example donation
-      const totalDeduct = amount + charge + donation;
+// Rejected
+function reject(){
+  document.getElementById("status").innerText = "Rejected ❌";
+  lockMenu();
+}
 
-      if(wallet < totalDeduct) return alert("Not enough balance");
+// Unlock menu
+function unlockMenu(){
+  const buttons = document.querySelectorAll("#menu button");
+  buttons.forEach(btn => btn.classList.remove("disabled"));
+}
 
-      wallet -= totalDeduct;
+// Lock menu
+function lockMenu(){
+  const buttons = document.querySelectorAll("#menu button");
+  buttons.forEach(btn => btn.classList.add("disabled"));
+}
 
-      db.collection('users').doc(telegramUsername).update({wallet: wallet}).then(()=>{
-        alert(`Withdraw successful!\nAmount: ${amount} Tk\nCharge: ${charge} Tk\nDonation: ${donation} Tk\nRemaining Wallet: ${wallet} Tk`);
-      });
-    }
-  });
-});
 </script>
 
 </body>
